@@ -5,48 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oasis Real-time Walkie-Talkie</title>
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151c2c;
+            --primary-color: #00ecbc;
+            --recording-color: #ff3860;
+            --text-main: #ffffff;
+            --text-muted: #6b7c96;
+        }
+
         body { 
-            font-family: Arial, sans-serif; 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center; 
             height: 100vh; 
-            background-color: #f0f2f5; 
-            margin: 0; 
+            background-color: var(--bg-color); 
+            margin: 0;
+            overflow: hidden;
         }
+
         .container { 
             text-align: center; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            background: var(--card-bg); 
+            padding: 40px 30px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1); 
+            width: 85%;
+            max-width: 360px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
+        h2 {
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-sub {
+            color: var(--primary-color);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 35px;
+            font-weight: 600;
+        }
+
+        /* PTT Button Outer Ring & Pulse Effect */
+        .btn-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 35px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .btn-wrapper.recording .pulse-ring {
+            background-color: var(--recording-color);
+            animation: ripple 1.5s infinite ease-in-out;
+            opacity: 0.4;
+        }
+
         .ptt-btn { 
-            width: 150px; 
-            height: 150px; 
+            position: relative;
+            z-index: 2;
+            width: 160px; 
+            height: 160px; 
             border-radius: 50%; 
             border: none; 
-            background-color: #007bff; 
-            color: white; 
-            font-size: 18px; 
-            font-weight: bold; 
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: var(--primary-color); 
+            font-size: 15px; 
+            font-weight: 700; 
             cursor: pointer; 
-            box-shadow: 0 6px 15px rgba(0,123,255,0.4); 
-            transition: all 0.2s ease; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 2px 3px rgba(255,255,255,0.1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none; 
-            -webkit-user-select: none; 
+            -webkit-user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 2px solid rgba(0, 236, 188, 0.2);
         }
-        .ptt-btn:active { 
-            background-color: #dc3545; 
-            transform: scale(0.95); 
-            box-shadow: 0 2px 5px rgba(220,53,69,0.4); 
+
+        .ptt-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
         }
+
+        /* Active State (Holding Down) */
+        .btn-wrapper.recording .ptt-btn { 
+            color: #ffffff;
+            background: linear-gradient(135deg, #ff4d6d, #c9184a);
+            border-color: transparent;
+            transform: scale(0.96);
+            box-shadow: 0 4px 10px rgba(255, 56, 96, 0.3);
+        }
+
+        .status-panel {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .status-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
         .status { 
-            margin-top: 20px; 
-            font-size: 16px; 
-            color: #555; 
-            font-weight: bold; 
+            font-size: 15px; 
+            color: var(--text-main); 
+            font-weight: 500;
+        }
+
+        .btn-wrapper.recording ~ .status-panel .status {
+            color: var(--recording-color);
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            100% { transform: scale(1.3); opacity: 0; }
         }
     </style>
 </head>
@@ -54,15 +156,28 @@
 
 <div class="container">
     <h2>Oasis Walkie-Talkie</h2>
-    <button id="talkBtn" class="ptt-btn">PRESS & HOLD<br>TO TALK</button>
-    <div id="status" class="status">အဆင်သင့်ဖြစ်ပါပြီ</div>
+    <div class="brand-sub">Radio Terminal</div>
+    
+    <div class="btn-wrapper" id="btnWrapper">
+        <div class="pulse-ring"></div>
+        <button id="talkBtn" class="ptt-btn">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+            </svg>
+            <span>PUSH TO TALK</span>
+        </button>
+    </div>
+    
+    <div class="status-panel">
+        <div class="status-title">System Status</div>
+        <div id="status" class="status">အဆင်သင့်ဖြစ်ပါပြီ</div>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
-    // Koko ပေးထားတဲ့ Configuration အချက်အလက်များကို ဖြည့်သွင်းထားပါတယ်
     const firebaseConfig = {
         apiKey: "AIzaSyC3C3XxNy92pBy26GGk0Kk9bD6zavdto0o",
         authDomain: "walkie-talkie-f62d9.firebaseapp.com",
@@ -74,7 +189,6 @@
         measurementId: "G-92Y1KS4QRZ"
     };
     
-    // Firebase စတင်ပတ်မောင်းခြင်း
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const audioRef = database.ref('walkie_talkie/current_audio');
@@ -82,38 +196,36 @@
     let mediaRecorder;
     let audioChunks = [];
     const talkBtn = document.getElementById('talkBtn');
+    const btnWrapper = document.getElementById('btnWrapper');
     const statusText = document.getElementById('status');
 
-    // မိုက်ခရိုဖုန်း အသုံးပြုခွင့် တောင်းဆိုခြင်း
     navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => {
             mediaRecorder = new MediaRecorder(stream);
             mediaRecorder.ondataavailable = event => { audioChunks.push(event.data); };
             mediaRecorder.onstop = () => {
-                statusText.innerText = "အသံပို့နေသည်...";
+                statusText.innerText = "အသံလှိုင်း ပေးပို့နေသည်...";
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
                 reader.onloadend = () => {
-                    // အသံဖိုင်ကို Database ပေါ်သို့ Real-time ပို့ပေးခြင်း
                     audioRef.set({
                         audioData: reader.result,
                         timestamp: Date.now()
                     });
-                    statusText.innerText = "ပို့ပြီးပါပြီ";
+                    statusText.innerText = "မက်ဆေ့ခ်ျ ပို့ပြီးပါပြီ";
+                    setTimeout(() => { statusText.innerText = "အဆင်သင့်ဖြစ်ပါပြီ"; }, 1500);
                 };
             };
         })
         .catch(err => {
-            console.error("Microphone Access Error: ", err);
-            statusText.innerText = "Microphone သုံးခွင့်ပေးဖို့ လိုအပ်ပါတယ်ရှင်။";
+            console.error(err);
+            statusText.innerText = "Microphone Access Denied";
         });
 
-    // --- PC Events ---
+    // Event Listeners for UI & Recording
     talkBtn.addEventListener('mousedown', startRecording);
     talkBtn.addEventListener('mouseup', stopRecording);
-    
-    // --- Mobile Events ---
     talkBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startRecording(); });
     talkBtn.addEventListener('touchend', (e) => { e.preventDefault(); stopRecording(); });
 
@@ -121,26 +233,29 @@
         if (mediaRecorder && mediaRecorder.state === "inactive") {
             audioChunks = [];
             mediaRecorder.start();
-            statusText.innerText = "ပြောနိုင်ပါပြီ (အသံဖမ်းနေသည်...)";
-        }
-    }
-    function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
+            btnWrapper.classList.add('recording');
+            statusText.innerText = "အသံဖမ်းနေပါသည်... (ပြောနိုင်ပါပြီ)";
         }
     }
 
-    // အခြားဖုန်း/စက်မှ အသံလှိုင်းအသစ် ရောက်လာပါက အလိုအလျောက် ဖွင့်ပေးမည့်အပိုင်း
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+            btnWrapper.classList.remove('recording');
+        }
+    }
+
+    // Real-time Audio Listener
     let lastTimestamp = Date.now();
     audioRef.on('value', snapshot => {
         const data = snapshot.val();
         if (data && data.timestamp > lastTimestamp) {
             lastTimestamp = data.timestamp;
-            statusText.innerText = "အသံမက်ဆေ့ခ်ျ ရောက်လာပါပြီ...";
+            statusText.innerText = "အသံဝင်လာနေပါသည်...";
             const audio = new Audio(data.audioData);
             audio.play().then(() => {
                 statusText.innerText = "အဆင်သင့်ဖြစ်ပါပြီ";
-            }).catch(e => console.error("Audio Playback Error: ", e));
+            }).catch(e => console.error(e));
         }
     });
 </script>
